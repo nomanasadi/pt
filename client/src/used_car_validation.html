@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sell Used Car</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .validate {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background-color: rgb(154, 240, 154);
+            color: rgb(3, 59, 3);
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .validateSpan {
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 12px;
+        }
+
+        form {
+            max-width: 550px;
+            margin: 20px auto;
+        }
+
+        table {
+            width: 100%;
+            border-spacing: 10px;
+        }
+
+        td {
+            padding: 5px;
+        }
+
+        input:not([type="checkbox"]), select {
+            width: 100%;
+            padding: 7px;
+        }
+
+        input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        button {
+            padding: 9px 20px;
+            cursor: pointer;
+        }
+
+        .error {
+            color: red;
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="validate" id="validateId">
+        Validation successful! Car details submitted.
+        <span class="validateSpan" onclick="cancel()">X</span>
+    </div>
+
+    <form id="carForm" onsubmit="handlesubmit(event)" novalidate>
+        <table>
+            <tr>
+                <td><label for="ownerNameId">Owner Name</label></td>
+                <td><input type="text" name="name" id="ownerNameId"></td>
+            </tr>
+            <tr>
+                <td><label for="carBrandId">Car Brand</label></td>
+                <td>
+                    <select name="carBrand" id="carBrandId" onchange="handleBrand()">
+                        <option value="">Select Brand</option>
+                        <option value="suzuki">Maruti Suzuki</option>
+                        <option value="hyundai">Hyundai</option>
+                        <option value="tata">Tata</option>
+                        <option value="honda">Honda</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="carModelId">Car Model</label></td>
+                <td>
+                    <select name="carModel" id="carModelId">
+                        <option value="">Select Model</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="fuelTypeId">Fuel Type</label></td>
+                <td>
+                    <select name="fuelType" id="fuelTypeId">
+                        <option value="">Select Fuel Type</option>
+                        <option value="petrol">Petrol</option>
+                        <option value="diesel">Diesel</option>
+                        <option value="cng">CNG</option>
+                        <option value="electric">Electric</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="yearId">Manufacturing Year</label></td>
+                <td><input type="number" name="year" id="yearId"></td>
+            </tr>
+            <tr>
+                <td><label for="priceId">Selling Price</label></td>
+                <td><input type="number" name="price" id="priceId"></td>
+            </tr>
+            <tr>
+                <td><label for="kmId">Kilometers Driven (km)</label></td>
+                <td><input type="number" name="kilometers" id="kmId"></td>
+            </tr>
+            <tr>
+                <td><label for="contactId">Contact Number</label></td>
+                <td><input type="text" name="contact" id="contactId" inputmode="numeric"></td>
+            </tr>
+            <tr>
+                <td><label for="negotiableId">Negotiable</label></td>
+                <td><input type="checkbox" name="negotiable" id="negotiableId"></td>
+            </tr>
+        </table>
+
+        <p class="error" id="errorId"></p>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        const models = {
+            suzuki: ["Swift", "Baleno", "Brezza", "Wagon R"],
+            hyundai: ["i10", "i20", "Creta", "Venue"],
+            tata: ["Nexon", "Punch", "Tiago", "Harrier"],
+            honda: ["City", "Amaze", "Elevate", "Jazz"]
+        };
+
+        function handleBrand() {
+            const brand = document.getElementById("carBrandId").value;
+            const modelSelect = document.getElementById("carModelId");
+
+            modelSelect.innerHTML = '<option value="">Select Model</option>';
+
+            if (models[brand]) {
+                models[brand].forEach(function (carModel) {
+                    const option = document.createElement("option");
+                    option.value = carModel;
+                    option.textContent = carModel;
+                    modelSelect.appendChild(option);
+                });
+            }
+        }
+
+        function handlesubmit(e) {
+            e.preventDefault();
+
+            const owner = document.getElementById("ownerNameId").value.trim();
+            const brand = document.getElementById("carBrandId").value;
+            const model = document.getElementById("carModelId").value;
+            const fuel = document.getElementById("fuelTypeId").value;
+            const yearValue = document.getElementById("yearId").value.trim();
+            const priceValue = document.getElementById("priceId").value.trim();
+            const kmValue = document.getElementById("kmId").value.trim();
+            const contact = document.getElementById("contactId").value.trim();
+            const error = document.getElementById("errorId");
+            const success = document.getElementById("validateId");
+            const currentYear = new Date().getFullYear();
+
+            error.textContent = "";
+            success.style.display = "none";
+
+            if (owner === "" || owner.length > 25) {
+                error.textContent = "Owner name is required and must not exceed 25 characters.";
+                return;
+            }
+
+            if (!brand || !model || !models[brand] || !models[brand].includes(model)) {
+                error.textContent = "Please select a valid car brand and model.";
+                return;
+            }
+
+            if (!["petrol", "diesel", "cng", "electric"].includes(fuel)) {
+                error.textContent = "Please select a valid fuel type.";
+                return;
+            }
+
+            const year = Number(yearValue);
+            if (yearValue === "" || !Number.isInteger(year) || year < 1886 || year > currentYear) {
+                error.textContent = "Manufacturing year must be a valid year from 1886 to " + currentYear + ".";
+                return;
+            }
+
+            const price = Number(priceValue);
+            if (priceValue === "" || !Number.isFinite(price) || price <= 0) {
+                error.textContent = "Selling price must be a positive number.";
+                return;
+            }
+
+            const kilometers = Number(kmValue);
+            if (kmValue === "" || !Number.isInteger(kilometers) || kilometers < 0) {
+                error.textContent = "Kilometers driven must be zero or a positive whole number.";
+                return;
+            }
+
+            if (!/^[0-9]{10}$/.test(contact)) {
+                error.textContent = "Contact number must contain exactly 10 digits.";
+                return;
+            }
+
+            success.style.display = "flex";
+            console.log("Validation successful!");
+        }
+
+        function cancel() {
+            document.getElementById("validateId").style.display = "none";
+        }
+    </script>
+</body>
+</html>
